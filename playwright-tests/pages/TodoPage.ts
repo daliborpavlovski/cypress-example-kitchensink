@@ -77,8 +77,8 @@ export class TodoPage {
   async deleteTodoAt(index: number): Promise<void> {
     await allure.step(`Delete todo at index ${index}`, async () => {
       const item = this.todoList.locator('li').nth(index)
-      // destroy button is only visible on hover, so force the click
-      await item.locator('.destroy').click({ force: true })
+      await item.hover()
+      await item.locator('.destroy').click()
     })
   }
 
@@ -90,7 +90,9 @@ export class TodoPage {
     const items = this.todoList.locator('li')
     let count = await items.count()
     while (count > 0) {
-      await items.first().locator('.destroy').click({ force: true })
+      const item = items.first()
+      await item.hover()
+      await item.locator('.destroy').click()
       count = await items.count()
     }
   }
