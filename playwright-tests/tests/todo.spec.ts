@@ -88,3 +88,61 @@ test.describe('Deleting todos', () => {
     await expect(todoPage.todoCount).toHaveText('1 item left')
   })
 })
+
+test.describe('Completing todos', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('marks a todo as complete', async () => {
+    allure.label('feature', 'Completing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.toggleTodoAt(0)
+    await expect(todoPage.getTodoItems().nth(0)).toHaveClass(/completed/)
+    await expect(todoPage.todoCount).toHaveText('0 items left')
+  })
+
+  test('unmarks a completed todo', async () => {
+    allure.label('feature', 'Completing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.toggleTodoAt(0)
+    await todoPage.toggleTodoAt(0)
+    await expect(todoPage.getTodoItems().nth(0)).not.toHaveClass(/completed/)
+    await expect(todoPage.todoCount).toHaveText('1 item left')
+  })
+
+  test('marks all todos as complete using toggle-all', async () => {
+    allure.label('feature', 'Completing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.addTodo('task two')
+    await todoPage.addTodo('task three')
+    await todoPage.clickToggleAll()
+    await expect(todoPage.todoList.locator('li.completed')).toHaveCount(3)
+    await expect(todoPage.todoCount).toHaveText('0 items left')
+    await expect(todoPage.toggleAll).toBeChecked()
+  })
+
+  test('unmarks all todos using toggle-all', async () => {
+    allure.label('feature', 'Completing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.addTodo('task two')
+    await todoPage.clickToggleAll()
+    await todoPage.clickToggleAll()
+    await expect(todoPage.todoList.locator('li.completed')).toHaveCount(0)
+    await expect(todoPage.toggleAll).not.toBeChecked()
+  })
+
+  test('toggle-all becomes checked when all todos are individually completed', async () => {
+    allure.label('feature', 'Completing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.addTodo('task two')
+    await todoPage.addTodo('task three')
+    await todoPage.toggleTodoAt(0)
+    await todoPage.toggleTodoAt(1)
+    await todoPage.toggleTodoAt(2)
+    await expect(todoPage.toggleAll).toBeChecked()
+  })
+})

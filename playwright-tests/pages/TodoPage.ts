@@ -100,6 +100,23 @@ export class TodoPage {
     })
   }
 
+  // Completing todos
+
+  /** Toggle the completion checkbox of the todo at the given 0-based index. */
+  async toggleTodoAt(index: number): Promise<void> {
+    await allure.step(`Toggle todo at index ${index}`, async () => {
+      await this.todoList.locator('li .toggle').nth(index).click()
+    })
+  }
+
+  /** Click the toggle-all checkbox to mark all todos complete or active at once. */
+  async clickToggleAll(): Promise<void> {
+    await allure.step('Click toggle-all', async () => {
+      // The #toggle-all input is hidden (opacity:0); users click its label
+      await this.page.locator('label[for="toggle-all"]').click()
+    })
+  }
+
   // Getters
 
   /** All visible todo <li> elements. */
