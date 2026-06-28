@@ -205,3 +205,180 @@ test.describe('Editing todos', () => {
     await expect(todoPage.todoList.locator('li label').nth(0)).toHaveText('updated task')
   })
 })
+
+test.describe('Filtering', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('shows only active todos when the Active filter is selected', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('active one')
+    await todoPage.addTodo('active two')
+    await todoPage.addTodo('done task')
+    await todoPage.toggleTodoAt(2)
+    await todoPage.clickFilterActive()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'active one' })).toBeVisible()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'active two' })).toBeVisible()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'done task' })).not.toBeVisible()
+  })
+
+  test('shows only completed todos when the Completed filter is selected', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('active one')
+    await todoPage.addTodo('active two')
+    await todoPage.addTodo('done task')
+    await todoPage.toggleTodoAt(2)
+    await todoPage.clickFilterCompleted()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'done task' })).toBeVisible()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'active one' })).not.toBeVisible()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'active two' })).not.toBeVisible()
+  })
+
+  test('shows all todos when the All filter is selected', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('active one')
+    await todoPage.addTodo('active two')
+    await todoPage.addTodo('done task')
+    await todoPage.toggleTodoAt(2)
+    await todoPage.clickFilterActive()
+    await todoPage.clickFilterAll()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'active one' })).toBeVisible()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'active two' })).toBeVisible()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'done task' })).toBeVisible()
+  })
+
+  test('hides a completed todo from the Active filter view', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('task one')
+    await todoPage.clickFilterActive()
+    await todoPage.toggleTodoAt(0)
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'task one' })).not.toBeVisible()
+  })
+
+  test('hides an active todo from the Completed filter view', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('task one')
+    await todoPage.toggleTodoAt(0)
+    await todoPage.clickFilterCompleted()
+    await todoPage.toggleTodoAt(0)
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'task one' })).not.toBeVisible()
+  })
+
+  test('highlights the Active filter tab when clicked', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('task one')
+    await todoPage.clickFilterActive()
+    await expect(todoPage.filterActive).toHaveClass(/selected/)
+  })
+
+  test('highlights the Completed filter tab when clicked', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('task one')
+    await todoPage.toggleTodoAt(0)
+    await todoPage.clickFilterCompleted()
+    await expect(todoPage.filterCompleted).toHaveClass(/selected/)
+  })
+
+  test('highlights the All filter tab when clicked', async () => {
+    allure.label('feature', 'Filtering')
+    await todoPage.addTodo('task one')
+    await todoPage.clickFilterActive()
+    await todoPage.clickFilterAll()
+    await expect(todoPage.filterAll).toHaveClass(/selected/)
+  })
+})
+
+test.describe('Clear completed', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('hides the Clear completed button when no todos are completed', async () => {
+    allure.label('feature', 'Clear completed')
+    await todoPage.addTodo('task one')
+    await expect(todoPage.clearCompletedBtn).not.toBeVisible()
+  })
+
+  test('shows the Clear completed button when a todo is completed', async () => {
+    allure.label('feature', 'Clear completed')
+    await todoPage.addTodo('task one')
+    await todoPage.toggleTodoAt(0)
+    await expect(todoPage.clearCompletedBtn).toBeVisible()
+  })
+
+  test('removes all completed todos and hides the button after clicking Clear completed', async () => {
+    allure.label('feature', 'Clear completed')
+    await todoPage.addTodo('active task')
+    await todoPage.addTodo('done one')
+    await todoPage.addTodo('done two')
+    await todoPage.toggleTodoAt(1)
+    await todoPage.toggleTodoAt(2)
+    await todoPage.clickClearCompleted()
+    await expect(todoPage.getTodoItems()).toHaveCount(1)
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'active task' })).toBeVisible()
+    await expect(todoPage.clearCompletedBtn).not.toBeVisible()
+  })
+})
+
+test.describe('Item counter', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('displays "1 item left" for a single active todo', async () => {
+    allure.label('feature', 'Item counter')
+    await todoPage.addTodo('task one')
+    await expect(todoPage.todoCount).toHaveText('1 item left')
+  })
+
+  test('displays "2 items left" for multiple active todos', async () => {
+    allure.label('feature', 'Item counter')
+    await todoPage.addTodo('task one')
+    await todoPage.addTodo('task two')
+    await expect(todoPage.todoCount).toHaveText('2 items left')
+  })
+
+  test('only counts active todos in the counter', async () => {
+    allure.label('feature', 'Item counter')
+    await todoPage.addTodo('active task')
+    await todoPage.addTodo('done one')
+    await todoPage.addTodo('done two')
+    await todoPage.toggleTodoAt(1)
+    await todoPage.toggleTodoAt(2)
+    await expect(todoPage.todoCount).toHaveText('1 item left')
+  })
+})
+
+test.describe('Persistence', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('persists todos after page reload', async () => {
+    allure.label('feature', 'Persistence')
+    await todoPage.addTodo('task one')
+    await todoPage.reloadPage()
+    await expect(todoPage.todoList.locator('li').filter({ hasText: 'task one' })).toBeVisible()
+  })
+
+  test('persists completed state after page reload', async () => {
+    allure.label('feature', 'Persistence')
+    await todoPage.addTodo('task one')
+    await todoPage.toggleTodoAt(0)
+    await todoPage.reloadPage()
+    await expect(todoPage.getTodoItems().nth(0)).toHaveClass(/completed/)
+  })
+})

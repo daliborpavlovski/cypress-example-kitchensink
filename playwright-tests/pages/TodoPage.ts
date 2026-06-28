@@ -157,6 +157,44 @@ export class TodoPage {
     })
   }
 
+  // Filtering
+
+  async clickFilterActive(): Promise<void> {
+    await allure.step('Click the Active filter', async () => {
+      await this.filterActive.click()
+    })
+  }
+
+  async clickFilterCompleted(): Promise<void> {
+    await allure.step('Click the Completed filter', async () => {
+      await this.filterCompleted.click()
+    })
+  }
+
+  async clickFilterAll(): Promise<void> {
+    await allure.step('Click the All filter', async () => {
+      await this.filterAll.click()
+    })
+  }
+
+  // Clear completed
+
+  async clickClearCompleted(): Promise<void> {
+    await allure.step('Click Clear completed', async () => {
+      await this.clearCompletedBtn.click()
+    })
+  }
+
+  // Persistence
+
+  /** Reload the page and wait for the app to be ready. */
+  async reloadPage(): Promise<void> {
+    await allure.step('Reload the page', async () => {
+      await this.page.reload()
+      await this.newTodoInput.waitFor({ state: 'visible' })
+    })
+  }
+
   // Getters
 
   /** All visible todo <li> elements. */
