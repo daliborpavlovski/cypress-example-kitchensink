@@ -117,6 +117,46 @@ export class TodoPage {
     })
   }
 
+  // Editing
+
+  /** Double-click a todo label to enter edit mode. */
+  async startEditTodo(index: number): Promise<void> {
+    await allure.step(`Enter edit mode for todo at index ${index}`, async () => {
+      await this.todoList.locator('li label').nth(index).dblclick()
+    })
+  }
+
+  /** The edit input of the currently-editing todo. */
+  getEditInput(): Locator {
+    return this.todoList.locator('li.editing .edit')
+  }
+
+  /** Replace the current edit input value with newTitle and press Enter to save. */
+  async saveEditWithEnter(newTitle: string): Promise<void> {
+    await allure.step(`Save edit with Enter: "${newTitle}"`, async () => {
+      await this.getEditInput().fill(newTitle)
+      await this.getEditInput().press('Enter')
+    })
+  }
+
+  /**
+   * Replace the current edit input value with newTitle and click outside to save.
+   * Clicking the page header moves focus away, triggering the blur/save handler.
+   */
+  async saveEditWithBlur(newTitle: string): Promise<void> {
+    await allure.step(`Save edit with blur: "${newTitle}"`, async () => {
+      await this.getEditInput().fill(newTitle)
+      await this.page.locator('.header h1').click()
+    })
+  }
+
+  /** Press Escape in the edit input to cancel editing without saving. */
+  async cancelEdit(): Promise<void> {
+    await allure.step('Cancel edit with Escape', async () => {
+      await this.getEditInput().press('Escape')
+    })
+  }
+
   // Getters
 
   /** All visible todo <li> elements. */

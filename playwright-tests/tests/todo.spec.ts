@@ -146,3 +146,62 @@ test.describe('Completing todos', () => {
     await expect(todoPage.toggleAll).toBeChecked()
   })
 })
+
+test.describe('Editing todos', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('enters edit mode when a todo is double-clicked', async () => {
+    allure.label('feature', 'Editing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.startEditTodo(0)
+    await expect(todoPage.getTodoItems().nth(0)).toHaveClass(/editing/)
+    await expect(todoPage.getEditInput()).toHaveValue('task one')
+  })
+
+  test('saves an edited todo by pressing Enter', async () => {
+    allure.label('feature', 'Editing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.startEditTodo(0)
+    await todoPage.saveEditWithEnter('updated task')
+    await expect(todoPage.todoList.locator('li label').nth(0)).toHaveText('updated task')
+    await expect(todoPage.getTodoItems().nth(0)).not.toHaveClass(/editing/)
+  })
+
+  test('saves an edited todo by clicking outside', async () => {
+    allure.label('feature', 'Editing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.startEditTodo(0)
+    await todoPage.saveEditWithBlur('updated task')
+    await expect(todoPage.todoList.locator('li label').nth(0)).toHaveText('updated task')
+  })
+
+  test('cancels an edit when Escape is pressed', async () => {
+    allure.label('feature', 'Editing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.startEditTodo(0)
+    await todoPage.cancelEdit()
+    await expect(todoPage.todoList.locator('li label').nth(0)).toHaveText('task one')
+    await expect(todoPage.getTodoItems().nth(0)).not.toHaveClass(/editing/)
+  })
+
+  test('deletes a todo when its title is cleared during edit', async () => {
+    allure.label('feature', 'Editing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.startEditTodo(0)
+    await todoPage.saveEditWithEnter('')
+    await expect(todoPage.getTodoItems()).toHaveCount(0)
+  })
+
+  test('trims leading and trailing whitespace when saving an edit', async () => {
+    allure.label('feature', 'Editing todos')
+    await todoPage.addTodo('task one')
+    await todoPage.startEditTodo(0)
+    await todoPage.saveEditWithEnter('  updated task  ')
+    await expect(todoPage.todoList.locator('li label').nth(0)).toHaveText('updated task')
+  })
+})
