@@ -59,17 +59,11 @@ export class TodoPage {
 
   // Todo management
 
-  /**
-   * Add a todo by blurring the input field (Tab key).
-   *
-   * The app binds to the `change` event on the new-todo input (view.js:189).
-   * `change` fires on blur, not on Enter — pressing Tab is the only reliable
-   * way to submit a new todo in the current implementation.
-   */
+  /** Type a title into the new-todo input and press Enter to add it. */
   async addTodo(title: string): Promise<void> {
     await allure.step(`Add todo: "${title}"`, async () => {
       await this.newTodoInput.fill(title)
-      await this.newTodoInput.press('Tab')
+      await this.newTodoInput.press('Enter')
     })
   }
 
@@ -95,6 +89,15 @@ export class TodoPage {
       await item.locator('.destroy').click()
       count = await items.count()
     }
+  }
+
+  /** Delete the first todo whose label matches the given title. */
+  async deleteTodoByTitle(title: string): Promise<void> {
+    await allure.step(`Delete todo: "${title}"`, async () => {
+      const item = this.todoList.locator('li').filter({ hasText: title })
+      await item.hover()
+      await item.locator('.destroy').click()
+    })
   }
 
   // Getters

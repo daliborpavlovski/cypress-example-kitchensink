@@ -45,3 +45,46 @@ test.describe('Page load', () => {
     await expect(todoPage.footer).not.toBeVisible()
   })
 })
+
+test.describe('Adding todos', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('adds a new todo when Enter is pressed', async () => {
+    allure.label('feature', 'Adding todos')
+    await todoPage.addTodo('task one')
+    await expect(todoPage.getTodoItems()).toHaveCount(1)
+    await expect(todoPage.todoCount).toHaveText('1 item left')
+  })
+
+  test('adds multiple todos in sequence', async () => {
+    allure.label('feature', 'Adding todos')
+    await todoPage.addTodo('task one')
+    await todoPage.addTodo('task two')
+    await todoPage.addTodo('task three')
+    await expect(todoPage.getTodoItems()).toHaveCount(3)
+    await expect(todoPage.todoCount).toHaveText('3 items left')
+  })
+})
+
+test.describe('Deleting todos', () => {
+  let todoPage: TodoPage
+
+  test.beforeEach(async ({ page }) => {
+    todoPage = new TodoPage(page)
+    await todoPage.goto()
+  })
+
+  test('deletes a todo using the destroy button', async () => {
+    allure.label('feature', 'Deleting todos')
+    await todoPage.addTodo('task one')
+    await todoPage.addTodo('task two')
+    await todoPage.deleteTodoAt(0)
+    await expect(todoPage.getTodoItems()).toHaveCount(1)
+    await expect(todoPage.todoCount).toHaveText('1 item left')
+  })
+})
