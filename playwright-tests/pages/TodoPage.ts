@@ -171,6 +171,20 @@ export class TodoPage {
     })
   }
 
+  // Test data helpers
+
+  /** Pre-seed localStorage with two todos sharing the same ID before navigation.
+   * Reproduces the duplicate-ID bug from new Date().getTime() returning the same
+   * millisecond for both seed items. Must be called before page.goto(). */
+  async seedWithDuplicateIds(): Promise<void> {
+    await this.page.addInitScript((id: number) => {
+      localStorage.setItem('todos-vanillajs', JSON.stringify([
+        { id, title: 'Pay electric bill', completed: false },
+        { id, title: 'Walk the dog', completed: false },
+      ]))
+    }, 1_000_000_000_000)
+  }
+
   // Persistence
 
   /** Reload the page and wait for the app to be ready. */
