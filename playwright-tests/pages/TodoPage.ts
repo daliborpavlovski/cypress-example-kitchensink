@@ -4,8 +4,8 @@ import { allure } from 'allure-playwright'
 export class TodoPage {
   readonly page: Page
 
+  // Public locators — tests assert on these directly via expect()
   readonly newTodoInput: Locator
-  readonly todoList: Locator
   readonly toggleAll: Locator
   readonly todoCount: Locator
   readonly clearCompletedBtn: Locator
@@ -14,6 +14,9 @@ export class TodoPage {
   readonly filterAll: Locator
   readonly filterActive: Locator
   readonly filterCompleted: Locator
+
+  // Private — consumed only through the getter methods below
+  private readonly todoList: Locator
 
   constructor(page: Page) {
     this.page = page
@@ -45,18 +48,6 @@ export class TodoPage {
     })
   }
 
-  /**
-   * Navigate to /todo with cleared localStorage so the app seeds its 2 default
-   * todos. Use this only in tests that verify the first-visit experience.
-   */
-  async gotoFreshStorage(): Promise<void> {
-    await allure.step('Open the Todo application with fresh storage', async () => {
-      await this.page.evaluate(() => localStorage.clear())
-      await this.page.goto('/todo')
-      await this.newTodoInput.waitFor({ state: 'visible' })
-    })
-  }
-
   // Todo management
 
   /** Type a title into the new-todo input and press Enter to add it. */
@@ -77,10 +68,10 @@ export class TodoPage {
   }
 
   /**
-   * Delete all visible todos.
-   * Called by goto() to clear seeded items so tests start from a known empty state.
+   * Delete all visible todos one by one.
+   * Private — called only by goto() to produce a clean empty state.
    */
-  async deleteAllTodos(): Promise<void> {
+  private async deleteAllTodos(): Promise<void> {
     const items = this.todoList.locator('li')
     let count = await items.count()
     while (count > 0) {
@@ -89,15 +80,6 @@ export class TodoPage {
       await item.locator('.destroy').click()
       count = await items.count()
     }
-  }
-
-  /** Delete the first todo whose label matches the given title. */
-  async deleteTodoByTitle(title: string): Promise<void> {
-    await allure.step(`Delete todo: "${title}"`, async () => {
-      const item = this.todoList.locator('li').filter({ hasText: title })
-      await item.hover()
-      await item.locator('.destroy').click()
-    })
   }
 
   // Completing todos
@@ -197,13 +179,23 @@ export class TodoPage {
 
   // Getters
 
-  /** All visible todo <li> elements. */
+  /** All todo <li> elements. */
   getTodoItems(): Locator {
     return this.todoList.locator('li')
   }
 
-  /** Raw text of the item counter, e.g. "3 items left". */
-  async getCounterText(): Promise<string> {
-    return (await this.todoCount.textContent()) ?? ''
+  /** All completed todo <li> elements. */
+  getCompletedItems(): Locator {
+    return this.todoList.locator('li.completed')
+  }
+
+  /** The first todo <li> whose visible text matches title. */
+  getTodoByTitle(title: string): Locator {
+    return this.todoList.locator('li').filter({ hasText: title })
+  }
+
+  /** The <label> element of the todo at the given 0-based index. */
+  getTodoLabelAt(index: number): Locator {
+    return this.todoList.locator('li label').nth(index)
   }
 }
