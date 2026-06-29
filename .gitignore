@@ -12,4 +12,5 @@ cypress/fixtures/users.json
 env
 .DS_Store
 /allure-results
+/allure-report
 /test-results

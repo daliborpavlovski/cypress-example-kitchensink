@@ -5,36 +5,55 @@ on:
 
 jobs:
   test:
+    name: Run test suite
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Build Docker image
         run: docker build -t todo-playwright .
 
-      - name: Run test suite
+      - name: Run Playwright tests
         run: |
           mkdir -p allure-results
           docker run --rm \
             -v ${{ github.workspace }}/allure-results:/app/allure-results \
             todo-playwright
 
-      - name: Set up Node.js
+      - name: Upload raw test results
         if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+          retention-days: 7
+
+  report:
+    name: Generate Allure report
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - name: Download raw test results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Generate Allure report
-        if: always()
         run: |
           npm install allure-commandline@2.43.0 --no-save
           npx allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure report
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
