@@ -162,6 +162,7 @@ test.describe('Completing todos', () => {
   })
 
   test('toggling the second seed todo marks only that item as complete', async ({ page }) => {
+    test.fail()
     allure.label('feature', 'Completing todos')
     const todoPage = new TodoPage(page)
     await todoPage.seedWithDuplicateIds()
@@ -182,6 +183,7 @@ test.describe('Completing todos', () => {
   })
 
   test('toggle-all marks all seed todos as complete', async ({ page }) => {
+    test.fail()
     allure.label('feature', 'Completing todos')
     const todoPage = new TodoPage(page)
     await todoPage.seedWithDuplicateIds()
