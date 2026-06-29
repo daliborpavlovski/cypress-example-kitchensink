@@ -1,5 +1,45 @@
 # Kitchen Sink [![renovate-app badge][renovate-badge]][renovate-app] [![semantic-release][semantic-image] ][semantic-url]
 
+## Playwright Test Automation
+
+This fork adds a Playwright + TypeScript test suite covering the TodoMVC todo application, written as a QA automation coding challenge.
+
+- **38 tests** across 9 feature areas, mapped 1:1 to a [Gherkin test plan](test-plan/todo.md)
+- Page Object Model, custom fixtures, Allure reporting, parameterized tests, and HTTP layer checks
+
+### Run tests locally
+
+```bash
+npm install
+npm run test:e2e        # run all Playwright tests
+npm run test:report     # generate and open the Allure report
+```
+
+> The app server starts automatically — no manual `npm start` required.
+
+### Docker
+
+Build the image:
+
+```bash
+docker build -t todo-playwright .
+```
+
+Run the tests:
+
+```bash
+docker run --rm todo-playwright
+```
+
+To persist Allure results and generate a report locally after the run:
+
+```bash
+docker run --rm -v "$(pwd)/allure-results:/app/allure-results" todo-playwright
+npm run test:report
+```
+
+---
+
 This is an example app used to showcase [Cypress.io](https://www.cypress.io/) End-to-End (E2E) testing. The application demonstrates the use of most [Cypress API commands](https://on.cypress.io/api). Additionally this example app is configured to run E2E tests in various CI platforms.
 Several workflows demonstrate the CI use of [Cypress Docker images](https://github.com/cypress-io/cypress-docker-images) which provide convenient, pre-configured compatible environments for Cypress.
 The [tests](https://github.com/cypress-io/cypress-example-kitchensink/tree/master/cypress/e2e) are also heavily commented.
