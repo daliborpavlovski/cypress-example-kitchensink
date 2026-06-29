@@ -6,7 +6,7 @@
 #
 name: Cypress parallel tests
 
-on: [push, workflow_dispatch]
+on: workflow_dispatch
 
 jobs:
   install:

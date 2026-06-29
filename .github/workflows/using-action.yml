@@ -2,7 +2,7 @@
 # in all jobs, otherwise the last version wins I believe
 name: Using Cypress GH Action
 
-on: [push, workflow_dispatch]
+on: workflow_dispatch
 
 jobs:
   single-run:

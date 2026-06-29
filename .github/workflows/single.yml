@@ -2,7 +2,7 @@
 # https://docs.github.com/en/actions/using-workflows
 name: Cypress single tests
 
-on: [push, workflow_dispatch]
+on: workflow_dispatch
 
 jobs:
   test1:
