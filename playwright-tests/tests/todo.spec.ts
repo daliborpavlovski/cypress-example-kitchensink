@@ -160,6 +160,46 @@ test.describe('Completing todos', () => {
     await todoPage.toggleTodoAt(2)
     await expect(todoPage.toggleAll).toBeChecked()
   })
+
+  test('toggling the second seed todo marks only that item as complete', async ({ page }) => {
+    allure.label('feature', 'Completing todos')
+    const todoPage = new TodoPage(page)
+    await todoPage.seedWithDuplicateIds()
+
+    await allure.step('Load the app with duplicate-ID seed todos', async () => {
+      await page.goto('/todo')
+      await expect(todoPage.getTodoItems()).toHaveCount(2)
+    })
+
+    await allure.step('Toggle the second seed item', async () => {
+      await todoPage.toggleTodoAt(1)
+    })
+
+    await allure.step('Verify only the second item is marked as complete', async () => {
+      await expect(todoPage.getTodoItems().nth(0)).not.toHaveClass(/completed/)
+      await expect(todoPage.getTodoItems().nth(1)).toHaveClass(/completed/)
+    })
+  })
+
+  test('toggle-all marks all seed todos as complete', async ({ page }) => {
+    allure.label('feature', 'Completing todos')
+    const todoPage = new TodoPage(page)
+    await todoPage.seedWithDuplicateIds()
+
+    await allure.step('Load the app with duplicate-ID seed todos', async () => {
+      await page.goto('/todo')
+      await expect(todoPage.getTodoItems()).toHaveCount(2)
+    })
+
+    await allure.step('Click the toggle-all button', async () => {
+      await todoPage.clickToggleAll()
+    })
+
+    await allure.step('Verify both items are marked as complete', async () => {
+      await expect(todoPage.getTodoItems().nth(0)).toHaveClass(/completed/)
+      await expect(todoPage.getTodoItems().nth(1)).toHaveClass(/completed/)
+    })
+  })
 })
 
 test.describe('Editing todos', () => {
