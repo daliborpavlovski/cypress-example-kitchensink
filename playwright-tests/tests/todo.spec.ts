@@ -64,6 +64,7 @@ test.describe('Page load', () => {
     await todoPage.addTodo('task one')
     await expect(todoPage.footer).toBeVisible()
     await expect(todoPage.mainSection).toBeVisible()
+    await expect(todoPage.filterBar).toBeVisible()
   })
 
   test('hides the footer and main section when the list is empty', async ({ todoPage }) => {

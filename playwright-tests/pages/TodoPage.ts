@@ -11,6 +11,7 @@ export class TodoPage {
   readonly clearCompletedBtn: Locator
   readonly mainSection: Locator
   readonly footer: Locator
+  readonly filterBar: Locator
   readonly filterAll: Locator
   readonly filterActive: Locator
   readonly filterCompleted: Locator
@@ -28,6 +29,7 @@ export class TodoPage {
     this.clearCompletedBtn = page.locator('.clear-completed')
     this.mainSection       = page.locator('.main')
     this.footer            = page.locator('.footer')
+    this.filterBar         = page.locator('.filters')
     this.filterAll         = page.locator('.filters a[href="#/"]')
     this.filterActive      = page.locator('.filters a[href="#/active"]')
     this.filterCompleted   = page.locator('.filters a[href="#/completed"]')
@@ -116,8 +118,9 @@ export class TodoPage {
   /** Replace the current edit input value with newTitle and press Enter to save. */
   async saveEditWithEnter(newTitle: string): Promise<void> {
     await allure.step(`Save edit with Enter: "${newTitle}"`, async () => {
-      await this.getEditInput().fill(newTitle)
-      await this.getEditInput().press('Enter')
+      const input = this.getEditInput()
+      await input.fill(newTitle)
+      await input.press('Enter')
     })
   }
 
@@ -127,7 +130,8 @@ export class TodoPage {
    */
   async saveEditWithBlur(newTitle: string): Promise<void> {
     await allure.step(`Save edit with blur: "${newTitle}"`, async () => {
-      await this.getEditInput().fill(newTitle)
+      const input = this.getEditInput()
+      await input.fill(newTitle)
       await this.page.locator('.header h1').click()
     })
   }
